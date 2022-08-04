@@ -39,3 +39,8 @@ Run the app using:
 uvicorn main:app --reload
 ```
 You can now navigate to 'localhost:8000/docs' to access the API endpoints.
+
+To run tests:
+```
+pytest
+```

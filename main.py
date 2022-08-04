@@ -3,7 +3,6 @@ from fastapi import FastAPI, status, Response
 from schema import Doctor, Appointment, UpdateAppointment
 from datetime import datetime, date
 
-
 app = FastAPI()
 
 DOCTORS = {
@@ -11,7 +10,6 @@ DOCTORS = {
 		"doctor_id": "0",
 		"first_name": "Test",
 		"last_name": "Doc-0",
-
 	},
 	"1": {
 		"doctor_id": "1",
@@ -22,32 +20,32 @@ DOCTORS = {
 		"doctor_id": "2",
 		"first_name": "Test",
 		"last_name": "Doc-2",
-	},
+	}
 }
 
 APPOINTMENTS = {
-	"1" : Appointment(
+	1 : Appointment(
         doctor_id="0",
         first_name="Patient",
         last_name="A",
         datetime=datetime(2022, 7, 22, 10, 15),
         kind="New Patient"
     ),
-	"2": Appointment(
+	2: Appointment(
         doctor_id="0",
         first_name="Patient",
         last_name="B",
         datetime=datetime(2022, 7, 22, 10, 15),
         kind="Follow-up"
     ),
-    "3": Appointment(
+    3: Appointment(
         doctor_id="0",
         first_name="Patient",
         last_name="C",
         datetime=datetime(2022, 7, 22, 10, 15),
         kind="Follow-up"
     ),
-	"4": Appointment(
+	4: Appointment(
         doctor_id="1",
         first_name="Patient",
         last_name="D",
@@ -93,7 +91,7 @@ def get_doctor_schedule(doctor_id:str, appointment_date:str, response:Response):
 @app.post("/doctor/appointment", status_code=status.HTTP_201_CREATED)
 def create_appointment(request:Appointment, response:Response):
     if request.datetime.minute % 15 != 0:
-        response.status_code = status.HTTP_404_NOT_FOUND
+        response.status_code = status.HTTP_400_BAD_REQUEST
         return {'detail': "Appointment times must be in 15 minutes intervals (00, 15, 30, 45)"}
 
     doctor = DOCTORS.get(request.doctor_id)
@@ -120,7 +118,7 @@ def create_appointment(request:Appointment, response:Response):
 
 
 @app.delete("/appointment/{appointment_id}", status_code=200)
-def delete_appointment(appointment_id:str, response:Response):
+def delete_appointment(appointment_id: int, response:Response):
 
     appointment = APPOINTMENTS.get(appointment_id)
     if appointment:
@@ -132,7 +130,7 @@ def delete_appointment(appointment_id:str, response:Response):
 
 
 @app.patch("/appointment/{appointment_id}", status_code=200)
-def update_appointment(appointment_id: str, request: UpdateAppointment, response:Response):
+def update_appointment(appointment_id: int, request: UpdateAppointment, response:Response):
     if request.doctor_id:
         doctor = DOCTORS.get(request.doctor_id)
         if not doctor:
@@ -146,7 +144,7 @@ def update_appointment(appointment_id: str, request: UpdateAppointment, response
 
     if request.datetime:
         if request.datetime.minute % 15 != 0:
-            response.status_code = status.HTTP_404_NOT_FOUND
+            response.status_code = status.HTTP_400_BAD_REQUEST
             return {'detail': "Appointment times must be in 15 minutes intervals (00, 15, 30, 45)"}
 
         request.datetime = request.datetime.replace(second=0, microsecond=0, tzinfo=None)
